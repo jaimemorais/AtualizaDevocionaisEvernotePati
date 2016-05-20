@@ -26,26 +26,29 @@ namespace AtualizaDevocionaisEvernotePat
             string pageURL = "http://aguasvivas.ws/";
             string pageStringContent = GetPageStringContent(pageURL);
 
-            string host = "sandbox.evernote.com";
             string token = ConfigurationManager.AppSettings["token"];
             
-
             string title = "Devocional - " + DateTime.Now.ToString("dd/MM/yyyy");
-            //CreateNote(host, token, title, pageStringContent);
-            
-            CreateNoteEvernoteExample(token, pageStringContent);
+
+            // Create note in the production evernote
+            CreateNote(token, title, pageStringContent);
+
+
+            // Create note in the sandbox (dev) evernote environment
+            //CreateNoteEvernoteSandbox(token, pageStringContent);
         }
 
 
-        private static void CreateNote(string host, string authToken, string noteTitle, string noteContent)
+        private static void CreateNote(string authToken, string noteTitle, string noteContent)
         {            
-            String evernoteHost = host; 
+            String evernoteHost = "www.evernote.com"; 
 
             Uri userStoreUrl = new Uri("https://" + evernoteHost + "/edam/user");
             TTransport userStoreTransport = new THttpClient(userStoreUrl);
             TProtocol userStoreProtocol = new TBinaryProtocol(userStoreTransport);
             UserStore.Client userStore = new UserStore.Client(userStoreProtocol);
 
+            // Check API version
             bool versionOK =
                 userStore.checkVersion("Evernote EDAMTest (C#)",
                    Evernote.EDAM.UserStore.Constants.EDAM_VERSION_MAJOR,
@@ -56,32 +59,28 @@ namespace AtualizaDevocionaisEvernotePat
                 throw new Exception("API version not OK");                
             }
 
-            // Get the URL used to interact with the contents of the user's account
-            // When your application authenticates using OAuth, the NoteStore URL will
-            // be returned along with the auth token in the final OAuth request.
-            // In that case, you don't need to make this call.
+            
             String noteStoreUrl = userStore.getNoteStoreUrl(authToken);
 
             TTransport noteStoreTransport = new THttpClient(new Uri(noteStoreUrl));
             TProtocol noteStoreProtocol = new TBinaryProtocol(noteStoreTransport);
             NoteStore.Client noteStore = new NoteStore.Client(noteStoreProtocol);
 
-            // List all of the notebooks in the user's account        
-            List<Notebook> notebooks = noteStore.listNotebooks(authToken);
-            Console.WriteLine("Found " + notebooks.Count + " notebooks:");
-            foreach (Notebook notebook in notebooks)
-            {
-                Console.WriteLine("  * " + notebook.Name);
-            }
 
-            Console.WriteLine();
-            Console.WriteLine("Creating a note in the default notebook");
-            Console.WriteLine();
 
-            // To create a new note, simply create a new Note object and fill in 
-            // attributes such as the note's title.
+            // List notebooks (cadernos do usuario)
+            //List<Notebook> notebooks = noteStore.listNotebooks(authToken);
+
+            // List linked notebook (cadernos compartilhados)
+            List<LinkedNotebook> linkedNotebooks = noteStore.listLinkedNotebooks(authToken);
+            LinkedNotebook devocionaisNotebook = linkedNotebooks.First(ln => ln.ShareName.Equals("JAIME + PATI"));
+            
+            
+            // Create the note
             Note note = new Note();
             note.Title = noteTitle;
+            //note.NotebookGuid = devocionaisNotebook.Guid;
+            
 
             // The content of an Evernote note is represented using Evernote Markup Language
             // (ENML). The full ENML specification can be found in the Evernote API Overview
@@ -92,14 +91,21 @@ namespace AtualizaDevocionaisEvernotePat
                 "<en-note>" +
                 noteContent +
                 "</en-note>";
-
+            
             // Finally, send the new note to Evernote using the createNote method
             // The new Note object that is returned will contain server-generated
             // attributes such as the new note's unique GUID.
-            Note createdNote = noteStore.createNote(authToken, note);
-                        
+            try
+            {
+                Note createdNote = noteStore.createNote(authToken, note);
+                Console.WriteLine("Successfully created new note with GUID: " + createdNote.Guid);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error creating note : " + e.Message);
+            }           
 
-            Console.WriteLine("Successfully created new note with GUID: " + createdNote.Guid);
+            
         }
 
 
@@ -185,7 +191,7 @@ namespace AtualizaDevocionaisEvernotePat
         }
 
 
-        private static void CreateNoteEvernoteExample(string developerToken, string noteContent)
+        private static void CreateNoteEvernoteSandbox(string developerToken, string noteContent)
         {
             // Real applications authenticate with Evernote using OAuth, but for the
             // purpose of exploring the API, you can get a developer token that allows
