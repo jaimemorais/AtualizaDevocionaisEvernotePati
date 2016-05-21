@@ -35,7 +35,7 @@ namespace AtualizaDevocionaisEvernotePat
 
 
             // Create note in the sandbox (dev) evernote environment
-            //CreateNoteEvernoteSandbox(token, pageStringContent);
+            //CreateNoteSandbox(token, pageStringContent);
         }
 
 
@@ -79,7 +79,7 @@ namespace AtualizaDevocionaisEvernotePat
             // Create the note
             Note note = new Note();
             note.Title = noteTitle;
-            //note.NotebookGuid = devocionaisNotebook.Guid;
+            note.NotebookGuid = devocionaisNotebook.Guid;
             
 
             // The content of an Evernote note is represented using Evernote Markup Language
@@ -191,7 +191,7 @@ namespace AtualizaDevocionaisEvernotePat
         }
 
 
-        private static void CreateNoteEvernoteSandbox(string developerToken, string noteContent)
+        private static void CreateNoteSandbox(string developerToken, string noteContent)
         {
             // Real applications authenticate with Evernote using OAuth, but for the
             // purpose of exploring the API, you can get a developer token that allows
