@@ -73,13 +73,13 @@ namespace AtualizaDevocionaisEvernotePat
 
             // List linked notebook (cadernos compartilhados)
             List<LinkedNotebook> linkedNotebooks = noteStore.listLinkedNotebooks(authToken);
-            LinkedNotebook devocionaisNotebook = linkedNotebooks.First(ln => ln.ShareName.Equals("JAIME + PATI"));
+            LinkedNotebook devocionaisNotebook = linkedNotebooks.First(ln => ln.ShareName.Equals("DEVOCIONAIS"));
             
             
             // Create the note
             Note note = new Note();
             note.Title = noteTitle;
-            note.NotebookGuid = devocionaisNotebook.Guid;
+            //note.NotebookGuid = devocionaisNotebook.Guid;
             
 
             // The content of an Evernote note is represented using Evernote Markup Language
