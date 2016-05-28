@@ -37,7 +37,7 @@ namespace AtualizaDevocionalEvernotePat.Controllers
                     string title = "Devocional - " + DateTime.Now.ToString("dd/MM/yyyy");
 
                     // Create note in the production evernote
-                    CreateNote(token, title, pageStringContent);
+                    CreateNote(tokenPat, title, pageStringContent);
 
 
                     return new HttpStatusCodeResult(200); // OK
