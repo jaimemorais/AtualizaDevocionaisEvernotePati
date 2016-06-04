@@ -48,7 +48,6 @@ namespace AtualizaDevocionalEvernotePat.Controllers
             }
             catch (Exception e)
             {
-                // https://appharbor.com/applications/atualizadevocionalevernotepat/logsession
                 Trace.TraceInformation("Erro em CriaDevocionalController.Cria() : " + e.Message);
 
                 return new HttpStatusCodeResult(HttpStatusCode.InternalServerError); // 500
