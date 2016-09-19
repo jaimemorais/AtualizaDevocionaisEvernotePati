@@ -8,9 +8,6 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Thrift.Protocol;
 using Thrift.Transport;
 
@@ -117,11 +114,16 @@ namespace AtualizaDevocionaisEvernotePat
             {
                 pageStringContent = wc.DownloadString(pageURL);
 
-                int startIndex = pageStringContent.IndexOf("<!-- insert the page content here -->");
+                int startIndex = pageStringContent.IndexOf(@"<div id=""content"">");
                 pageStringContent = pageStringContent.Substring(startIndex);
-
+                
                 HtmlAgilityPack.HtmlDocument h = new HtmlAgilityPack.HtmlDocument();
                 h.LoadHtml(pageStringContent);
+                
+                // Remove images
+                foreach (var img in h.DocumentNode.Descendants("img").ToArray())
+                    img.Remove();
+
 
                 using (StringWriter sw = new StringWriter())
                 {
@@ -133,7 +135,7 @@ namespace AtualizaDevocionaisEvernotePat
 
             return pageStringContent;
         }
-        
+
         private static void ConvertContentTo(HtmlNode node, TextWriter outText)
         {
             foreach (HtmlNode subnode in node.ChildNodes)

@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using Thrift.Protocol;
 using Thrift.Transport;
@@ -134,11 +133,16 @@ namespace AtualizaDevocionalEvernotePat.Controllers
             {
                 pageStringContent = wc.DownloadString(pageURL);
 
-                int startIndex = pageStringContent.IndexOf("<!-- insert the page content here -->");
+                int startIndex = pageStringContent.IndexOf(@"<div id=""content"">");
                 pageStringContent = pageStringContent.Substring(startIndex);
 
                 HtmlAgilityPack.HtmlDocument h = new HtmlAgilityPack.HtmlDocument();
                 h.LoadHtml(pageStringContent);
+
+                // Remove images
+                foreach (var img in h.DocumentNode.Descendants("img").ToArray())
+                    img.Remove();
+
 
                 using (StringWriter sw = new StringWriter())
                 {
